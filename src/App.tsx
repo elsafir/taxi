@@ -1,24 +1,27 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from 'react'; // Keep the necessary imports only
+import MapComponent from './components/MapComponent';
+import FilterControls from './components/FilterControls';
+import { fetchTrips } from './services/api';
 
 function App() {
+  const [trips, setTrips] = useState([]);
+  const [timeRange, setTimeRange] = useState<[string, string]>(['2022-01-01T00:00', '2022-01-01T23:59']);
+  const [fareRange, setFareRange] = useState<[number, number]>([0, 100]);
+  const [distanceRange, setDistanceRange] = useState<[number, number]>([0, 10]);
+
+  useEffect(() => {
+    const loadTrips = async () => {
+      const data = await fetchTrips(timeRange, fareRange, distanceRange);
+      setTrips(data);
+    };
+    loadTrips();
+  }, [timeRange, fareRange, distanceRange]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Yellow Taxi Trip Analytics Dashboard</h1>
+      <FilterControls setTimeRange={setTimeRange} setFareRange={setFareRange} setDistanceRange={setDistanceRange} />
+      <MapComponent trips={trips} />
     </div>
   );
 }
